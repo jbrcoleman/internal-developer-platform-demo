@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterAnalysisTemplate
+metadata:
+  name: error-rate
+spec:
+  args:
+  - name: service-name
+  - name: namespace
+
+  metrics:
+  - name: error-rate
+    interval: 30s
+    initialDelay: 60s
+    successCondition: result[0] < 0.05  # Less than 5% errors
+    failureLimit: 1
+    provider:
+      prometheus:
+        address: http://prometheus-kube-prometheus-prometheus.monitoring.svc:9090
+        query: |
+          (
+            (sum(rate(http_requests_total{namespace="{{args.namespace}}",pod=~"{{args.service-name}}.*",status=~"5.."}[2m])) or vector(0))
+            /
+            sum(rate(http_requests_total{namespace="{{args.namespace}}",pod=~"{{args.service-name}}.*"}[2m]))
+          ) or vector(0)

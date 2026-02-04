@@ -1,0 +1,32 @@
+# Generated manifests
+applications/*/manifests/
+
+# Kubernetes configs
+*.kubeconfig
+kubeconfig
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.log
+*.tmp
+temp/
+
+# Secrets
+*.pem
+*.key
+secrets.yaml

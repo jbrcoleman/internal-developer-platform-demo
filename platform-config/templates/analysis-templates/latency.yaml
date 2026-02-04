@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterAnalysisTemplate
+metadata:
+  name: latency
+spec:
+  args:
+  - name: service-name
+  - name: namespace
+
+  metrics:
+  - name: p95-latency
+    interval: 30s
+    initialDelay: 60s
+    successCondition: result[0] < 0.5  # Less than 500ms
+    failureLimit: 3
+    provider:
+      prometheus:
+        address: http://prometheus-kube-prometheus-prometheus.monitoring.svc:9090
+        query: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{namespace="{{args.namespace}}",pod=~"{{args.service-name}}.*"}[2m])) by (le)
+          ) or vector(0)

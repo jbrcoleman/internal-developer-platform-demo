@@ -1,0 +1,37 @@
+apiVersion: platform.grow.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-app-1
+spec:
+  runtime:
+    image: sample-service:v1
+    port: 8080
+    resources:
+      cpu: 100m
+      memory: 128Mi
+
+  deployment:
+    replicas: 3
+    strategy: canary
+
+    canary:
+      steps:
+        - weight: 33
+          pause: 2m
+        - weight: 66
+          pause: 2m
+
+      analysis:
+        enabled: true
+        errorRateThreshold: 0.05
+        latencyP95Threshold: 0.5
+
+  networking:
+    expose: true
+    domain: demo-app-1.local
+
+  observability:
+    metrics:
+      enabled: true
+      port: 8080
+      path: /metrics
